@@ -1,5 +1,5 @@
 const API_BASE_URL = 'https://api.heygen.com/v2';
-const API_KEY = 'Y2YzYmYyNmY4NDhiNDM2MmFiN2NmYTk1NmUxNGVmMzgtMTczNjg3NTU2NA==';
+const API_KEY = 'Y2YzYmYyNmY4NDhiNDM2MmFiN2NmYTk1NmUxNGVmMzgtMTc1MzYzOTYyMg==';
 
 class HeyGenApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
