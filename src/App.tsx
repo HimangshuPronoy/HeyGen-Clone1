@@ -19,6 +19,7 @@ interface GeneratedVideo {
 function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [voices, setVoices] = useState<any[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<Avatar | null>(null);
   const [script, setScript] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,7 @@ function App() {
 
   const handleGetStarted = () => {
     setShowLanding(false);
-    loadAvatars();
+    loadAvatarsAndVoices();
   };
 
   const handleBackToLanding = () => {
@@ -43,13 +44,17 @@ function App() {
     // Don't auto-load avatars on mount
   }, []);
 
-  const loadAvatars = async () => {
+  const loadAvatarsAndVoices = async () => {
     setIsLoading(true);
     try {
-      const fetchedAvatars = await heygenApi.getAvatars();
+      const [fetchedAvatars, fetchedVoices] = await Promise.all([
+        heygenApi.getAvatars(),
+        heygenApi.getVoices(),
+      ]);
       setAvatars(fetchedAvatars);
+      setVoices(fetchedVoices);
     } catch (error) {
-      console.error('Failed to load avatars:', error);
+      console.error('Failed to load avatars or voices:', error);
     } finally {
       setIsLoading(false);
     }
@@ -57,10 +62,13 @@ function App() {
 
   const generateVideo = async () => {
     if (!selectedAvatar || !script.trim()) return;
-    
+    const voice_id = voices[0]?.voice_id;
+    if (!voice_id) {
+      alert('No voices available.');
+      return;
+    }
     setIsGenerating(true);
     setProgress(0);
-    
     try {
       // Simulate progress updates
       const progressInterval = setInterval(() => {
@@ -72,26 +80,22 @@ function App() {
           return prev + Math.random() * 15;
         });
       }, 500);
-
       const response = await heygenApi.generateVideo({
         avatar_id: selectedAvatar.id,
         text: script,
+        voice_id,
       });
-
       // Check if we got a mock response and handle it
       if (response.video_id.startsWith('mock_')) {
         throw new Error('API request failed, using mock data');
       }
-
       // Poll for video completion
       const videoId = response.video_id;
       let attempts = 0;
       const maxAttempts = 20;
-      
       const pollStatus = async (): Promise<void> => {
         attempts++;
         const status = await heygenApi.getVideoStatus(videoId);
-        
         if (status.status === 'completed') {
           clearInterval(progressInterval);
           setProgress(100);
@@ -109,7 +113,6 @@ function App() {
           setTimeout(pollStatus, 2000);
         }
       };
-
       await pollStatus();
     } catch (error) {
       console.error('Failed to generate video:', error);

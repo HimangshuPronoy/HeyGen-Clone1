@@ -97,6 +97,16 @@ class HeyGenApiService {
     }
   }
 
+  async getVoices() {
+    try {
+      const response = await this.request<any>('/voices');
+      return response.data?.voices || response.voices || [];
+    } catch (error) {
+      console.error('Error fetching voices:', error);
+      return [];
+    }
+  }
+
   private getMockAvatars() {
     return [
       {
