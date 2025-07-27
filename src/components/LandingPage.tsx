@@ -17,7 +17,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <Video className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">AI Video Studio</h1>
+                <h1 className="text-2xl font-bold text-gray-900">ad ugc maker</h1>
               </div>
             </div>
             
@@ -37,7 +37,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
-              Powered by HeyGen AI
+              Powered by ad ugc maker
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Create Stunning
@@ -82,7 +82,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose AI Video Studio?</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose ad ugc maker?</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Create professional videos in minutes, not hours
             </p>
@@ -148,10 +148,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
               <Video className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold">AI Video Studio</span>
+            <span className="text-xl font-bold">ad ugc maker</span>
           </div>
           <p className="text-gray-400">
-            Powered by HeyGen AI • Create professional videos with artificial intelligence
+            Powered by ad ugc maker • Create professional UGC ad videos with AI
           </p>
         </div>
       </footer>
