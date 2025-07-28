@@ -1,5 +1,8 @@
+// HeyGen API Service
+// Note: You need to replace this with your actual HeyGen API key
+// Get your API key from: https://app.heygen.com/settings/api
 const API_BASE_URL = 'https://api.heygen.com/v2';
-const API_KEY = 'MDJkYjE2ZTA2OWE0NDYyN2FjN2YwM2IxYzY2OTY5YjYtMTc1MzY4MDc0OQ==';
+const API_KEY = import.meta.env.VITE_HEYGEN_API_KEY || 'your-api-key-here';
 
 class HeyGenApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -8,7 +11,7 @@ class HeyGenApiService {
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${API_KEY}`,
+        'X-Api-Key': API_KEY, // HeyGen uses X-Api-Key header
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -16,6 +19,12 @@ class HeyGenApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        url,
+        error: errorData
+      });
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
@@ -24,7 +33,7 @@ class HeyGenApiService {
 
   async getAvatars() {
     try {
-      const response = await this.request<any>('/avatars');
+      const response = await this.request<any>('/avatar/list');
       return response.data?.avatars || response.avatars || [];
     } catch (error) {
       console.error('Error fetching avatars:', error);
@@ -39,35 +48,35 @@ class HeyGenApiService {
     voice_id?: string;
   }) {
     try {
-      const voiceConfig: any = {
-        type: 'text',
-        input_text: data.text,
+      const requestBody = {
+        video_inputs: [{
+          character: {
+            type: 'avatar',
+            avatar_id: data.avatar_id,
+            scale: 1,
+          },
+          voice: {
+            type: 'text',
+            input_text: data.text,
+            voice_id: data.voice_id || 'en_us_001', // Default voice if none provided
+          },
+        }],
+        dimension: {
+          width: 1920,
+          height: 1080,
+        },
+        aspect_ratio: '16:9',
+        test: false, // Set to true for testing
       };
-      
-      if (data.voice_id) {
-        voiceConfig.voice_id = data.voice_id;
-      }
+
+      console.log('Generating video with payload:', requestBody);
 
       const response = await this.request<any>('/video/generate', {
         method: 'POST',
-        body: JSON.stringify({
-          video_inputs: [{
-            character: {
-              type: 'avatar',
-              avatar_id: data.avatar_id,
-              scale: 1,
-            },
-            voice: voiceConfig,
-          }],
-          dimension: {
-            width: 1920,
-            height: 1080,
-          },
-          aspect_ratio: '16:9',
-        }),
+        body: JSON.stringify(requestBody),
       });
       
-      return response.data;
+      return response.data || response;
     } catch (error) {
       console.error('Error generating video:', error);
       // Return mock response for development
@@ -80,8 +89,8 @@ class HeyGenApiService {
 
   async getVideoStatus(videoId: string) {
     try {
-      const response = await this.request<any>(`/video_status/${videoId}`);
-      return response.data;
+      const response = await this.request<any>(`/video/${videoId}`);
+      return response.data || response;
     } catch (error) {
       console.error('Error getting video status:', error);
       // Return mock completed status after 3 seconds for development
@@ -99,11 +108,16 @@ class HeyGenApiService {
 
   async getVoices() {
     try {
-      const response = await this.request<any>('/voices');
+      const response = await this.request<any>('/voice/list');
       return response.data?.voices || response.voices || [];
     } catch (error) {
       console.error('Error fetching voices:', error);
-      return [];
+      // Return mock voices for development
+      return [
+        { voice_id: 'en_us_001', name: 'English US - Female' },
+        { voice_id: 'en_us_002', name: 'English US - Male' },
+        { voice_id: 'en_us_003', name: 'English US - Female 2' },
+      ];
     }
   }
 

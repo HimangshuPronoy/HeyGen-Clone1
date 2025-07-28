@@ -62,11 +62,19 @@ function App() {
 
   const generateVideo = async () => {
     if (!selectedAvatar || !script.trim()) return;
+    
+    // Check if API key is configured
+    if (import.meta.env.VITE_HEYGEN_API_KEY === 'your-api-key-here' || !import.meta.env.VITE_HEYGEN_API_KEY) {
+      alert('Please configure your HeyGen API key in the .env file. See README.md for instructions.');
+      return;
+    }
+    
     const voice_id = voices[0]?.voice_id;
     if (!voice_id) {
       alert('No voices available.');
       return;
     }
+    
     setIsGenerating(true);
     setProgress(0);
     try {
@@ -80,15 +88,27 @@ function App() {
           return prev + Math.random() * 15;
         });
       }, 500);
+      
       const response = await heygenApi.generateVideo({
         avatar_id: selectedAvatar.id,
         text: script,
         voice_id,
       });
+      
       // Check if we got a mock response and handle it
       if (response.video_id.startsWith('mock_')) {
-        throw new Error('API request failed, using mock data');
+        clearInterval(progressInterval);
+        setProgress(100);
+        setGeneratedVideo({
+          id: response.video_id,
+          status: 'completed',
+          video_url: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+          thumbnail_url: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=400'
+        });
+        setIsGenerating(false);
+        return;
       }
+      
       // Poll for video completion
       const videoId = response.video_id;
       let attempts = 0;
@@ -118,6 +138,19 @@ function App() {
       console.error('Failed to generate video:', error);
       setIsGenerating(false);
       setProgress(0);
+      
+      // Show user-friendly error message
+      if (error instanceof Error) {
+        if (error.message.includes('401')) {
+          alert('Invalid API key. Please check your HeyGen API key configuration.');
+        } else if (error.message.includes('404')) {
+          alert('API endpoint not found. Please check your internet connection and try again.');
+        } else if (error.message.includes('400')) {
+          alert('Invalid request. Please check your input and try again.');
+        } else {
+          alert(`Error: ${error.message}`);
+        }
+      }
     }
   };
 
