@@ -47,6 +47,10 @@ function App() {
   const loadAvatarsAndVoices = async () => {
     setIsLoading(true);
     try {
+      // Test API connection first
+      const apiConnected = await heygenApi.testApiConnection();
+      console.log('API connected:', apiConnected);
+      
       const [fetchedAvatars, fetchedVoices] = await Promise.all([
         heygenApi.getAvatars(),
         heygenApi.getVoices(),

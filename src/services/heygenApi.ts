@@ -5,6 +5,19 @@ const API_BASE_URL = 'https://api.heygen.com/v2';
 const API_KEY = import.meta.env.VITE_HEYGEN_API_KEY || 'MDJkYjE2ZTA2OWE0NDYyN2FjN2YwM2IxYzY2OTY5YjYtMTc1MzY4MDc0OQ==';
 
 class HeyGenApiService {
+  async testApiConnection() {
+    try {
+      console.log('Testing HeyGen API connection...');
+      console.log('API Key (first 10 chars):', API_KEY.substring(0, 10) + '...');
+      const response = await this.request<any>('/user/info');
+      console.log('API connection successful:', response);
+      return true;
+    } catch (error) {
+      console.error('API connection failed:', error);
+      return false;
+    }
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     
@@ -33,10 +46,13 @@ class HeyGenApiService {
 
   async getAvatars() {
     try {
+      console.log('Fetching avatars from HeyGen API...');
       const response = await this.request<any>('/avatar/list');
+      console.log('Avatar response:', response);
       return response.data?.avatars || response.avatars || [];
     } catch (error) {
       console.error('Error fetching avatars:', error);
+      console.log('Falling back to mock avatars');
       // Return mock data for development
       return this.getMockAvatars();
     }
@@ -108,10 +124,13 @@ class HeyGenApiService {
 
   async getVoices() {
     try {
+      console.log('Fetching voices from HeyGen API...');
       const response = await this.request<any>('/voice/list');
+      console.log('Voice response:', response);
       return response.data?.voices || response.voices || [];
     } catch (error) {
       console.error('Error fetching voices:', error);
+      console.log('Falling back to mock voices');
       // Return mock voices for development
       return [
         { voice_id: 'en_us_001', name: 'English US - Female' },
